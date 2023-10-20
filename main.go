@@ -57,7 +57,7 @@ func main() {
 			items.POST("", gin2.CreateNewItem(db))
 			items.GET("", ListItem(db))
 			items.GET("/:id", GetItem(db))
-			items.PATCH("/:id", UpdateItem(db))
+			items.PATCH("/:id", gin2.UpdateItemHandler(db))
 			items.DELETE("/:id", DeleteItem(db))
 		}
 	}
@@ -70,30 +70,6 @@ func main() {
 
 	if err := r.Run(":3000"); err != nil {
 		log.Fatalln(err)
-	}
-}
-
-func CreateItem(db *gorm.DB) func(ctx *gin.Context) {
-	return func(c *gin.Context) {
-		var itemData TodoItemCreation
-
-		if err := c.ShouldBind(&itemData); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		if err := db.Create(&itemData).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(itemData.Id))
 	}
 }
 
