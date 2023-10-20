@@ -19,24 +19,9 @@ type TodoItem struct {
 	Status      string `json:"status" gorm:"column:status;"`
 }
 
-type TodoItemCreation struct {
-	Id          int    `json:"id" gorm:"column:id;"`
-	Title       string `json:"title" gorm:"column:title;"`
-	Description string `json:"description" gorm:"column:description;"`
-}
-
-type TodoItemUpdate struct {
-	Title       *string `json:"title" gorm:"column:title;"`
-	Description *string `json:"description" gorm:"column:description;"`
-	Status      *string `json:"status" gorm:"column:status;"`
-}
-
 func (TodoItem) TableName() string {
 	return "todo_items"
 }
-
-func (TodoItemCreation) TableName() string { return TodoItem{}.TableName() }
-func (TodoItemUpdate) TableName() string   { return TodoItem{}.TableName() }
 
 func main() {
 	dsn := os.Getenv("DB_CONN")
@@ -96,41 +81,6 @@ func GetItem(db *gorm.DB) func(ctx *gin.Context) {
 		}
 
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(itemData))
-	}
-}
-
-func UpdateItem(db *gorm.DB) func(ctx *gin.Context) {
-	return func(c *gin.Context) {
-
-		id, err := strconv.Atoi(c.Param("id"))
-
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		var updateData TodoItemUpdate
-
-		if err := c.ShouldBind(&updateData); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		if err := db.Where("id = ?", id).Updates(&updateData).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
 	}
 }
 
