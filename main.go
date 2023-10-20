@@ -2,6 +2,7 @@ package main
 
 import (
 	"g09-to-do-list/common"
+	gin2 "g09-to-do-list/module/transport/gin"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -9,16 +10,13 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 )
 
 type TodoItem struct {
-	Id          int        `json:"id" gorm:"column:id;"`
-	Title       string     `json:"title" gorm:"column:title;"`
-	Description string     `json:"description" gorm:"column:description;"`
-	Status      string     `json:"status" gorm:"column:status;"`
-	CreatedAt   *time.Time `json:"created_at" gorm:"column:created_at;"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at;"`
+	common.SQLModel
+	Title       string `json:"title" gorm:"column:title;"`
+	Description string `json:"description" gorm:"column:description;"`
+	Status      string `json:"status" gorm:"column:status;"`
 }
 
 type TodoItemCreation struct {
@@ -56,7 +54,7 @@ func main() {
 	{
 		items := v1.Group("/items")
 		{
-			items.POST("", CreateItem(db))
+			items.POST("", gin2.CreateNewItem(db))
 			items.GET("", ListItem(db))
 			items.GET("/:id", GetItem(db))
 			items.PATCH("/:id", UpdateItem(db))
