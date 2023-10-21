@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"g09-to-do-list/common"
 	"g09-to-do-list/module/item/model"
 )
 
@@ -21,6 +22,9 @@ func (biz *bizGetItem) GetItem(ctx context.Context, id int) (*model.TodoItem, er
 	var itemData model.TodoItem
 
 	if err := biz.store.FindItem(ctx, map[string]interface{}{"id": id}, &itemData); err != nil {
+		if err == common.RecordNotFound {
+			return nil, common.ErrCannotGetEntity(model.TableName, err)
+		}
 		return nil, model.ErrTitleCannotFound
 	}
 

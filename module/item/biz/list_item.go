@@ -7,7 +7,7 @@ import (
 )
 
 type storageListItem interface {
-	ListItem(ctx context.Context, paging *common.Paging, result *[]model.TodoItem) error
+	ListItem(ctx context.Context, paging *common.Paging, filter *model.Filter, result *[]model.TodoItem) error
 }
 
 type bizListItem struct {
@@ -18,10 +18,10 @@ func NewBizListItem(store storageListItem) *bizListItem {
 	return &bizListItem{store: store}
 }
 
-func (biz *bizListItem) ListItem(ctx context.Context, paging *common.Paging) ([]model.TodoItem, error) {
+func (biz *bizListItem) ListItem(ctx context.Context, paging *common.Paging, filter *model.Filter) ([]model.TodoItem, error) {
 	var result []model.TodoItem
 
-	if err := biz.store.ListItem(ctx, paging, &result); err != nil {
+	if err := biz.store.ListItem(ctx, paging, filter, &result); err != nil {
 		return nil, err
 	}
 

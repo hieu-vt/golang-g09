@@ -1,6 +1,7 @@
 package main
 
 import (
+	"g09-to-do-list/middleware"
 	gin3 "g09-to-do-list/module/item/transport/gin"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
@@ -20,7 +21,7 @@ func main() {
 
 	r := gin.Default()
 
-	log.Println(db)
+	r.Use(middleware.Recover())
 
 	v1 := r.Group("/v1")
 	{

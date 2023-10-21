@@ -16,9 +16,7 @@ func UpdateItemHandler(db *gorm.DB) func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			c.JSON(http.StatusBadRequest, common.ErrInvalidRequest(err))
 
 			return
 		}
@@ -26,9 +24,7 @@ func UpdateItemHandler(db *gorm.DB) func(c *gin.Context) {
 		var updateData model.TodoItemUpdate
 
 		if err := c.ShouldBind(&updateData); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			c.JSON(http.StatusBadRequest, common.ErrInvalidRequest(err))
 
 			return
 		}
@@ -37,10 +33,8 @@ func UpdateItemHandler(db *gorm.DB) func(c *gin.Context) {
 
 		biz := biz2.NewBizUpdateItem(store)
 
-		if err := biz.UpdateItem(c, id, &updateData); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+		if err := biz.UpdateItem(c.Request.Context(), id, &updateData); err != nil {
+			c.JSON(http.StatusBadRequest, common.ErrCannotUpdateEntity(model.TableName, err))
 
 			return
 		}

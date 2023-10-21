@@ -12,6 +12,10 @@ var (
 	ErrTitleCannotFound   = errors.New("item can not found")
 )
 
+const (
+	TableName = "todo_items"
+)
+
 type TodoItem struct {
 	common.SQLModel
 	Title       string `json:"title" gorm:"column:title;"`
@@ -19,7 +23,7 @@ type TodoItem struct {
 	Status      string `json:"status" gorm:"column:status;"`
 }
 
-func (TodoItem) TableName() string { return "todo_items" }
+func (TodoItem) TableName() string { return TableName }
 
 type TodoItemCreation struct {
 	Id          int    `json:"id" gorm:"column:id;"`

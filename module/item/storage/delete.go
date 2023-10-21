@@ -10,7 +10,7 @@ func (s *sqlStore) DeleteItem(ctx context.Context, id int) error {
 	if err := s.db.Table(model.TodoItem{}.TableName()).Where("id = ?", id).Updates(map[string]interface{}{
 		"status": common.DELETED,
 	}).Error; err != nil {
-		return err
+		return common.ErrDB(err)
 	}
 
 	return nil

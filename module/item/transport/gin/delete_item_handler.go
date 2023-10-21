@@ -3,6 +3,7 @@ package gin
 import (
 	"g09-to-do-list/common"
 	biz2 "g09-to-do-list/module/item/biz"
+	"g09-to-do-list/module/item/model"
 	"g09-to-do-list/module/item/storage"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -15,9 +16,7 @@ func DeleteItem(db *gorm.DB) func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+			c.JSON(http.StatusBadRequest, common.ErrInvalidRequest(err))
 
 			return
 		}
@@ -26,10 +25,8 @@ func DeleteItem(db *gorm.DB) func(c *gin.Context) {
 
 		biz := biz2.NewBizDeleteItem(store)
 
-		if err := biz.DeleteItem(c, id); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+		if err := biz.DeleteItem(c.Request.Context(), id); err != nil {
+			c.JSON(http.StatusBadRequest, common.ErrCannotDeleteEntity(model.TableName, err))
 
 			return
 		}
