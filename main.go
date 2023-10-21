@@ -3,6 +3,7 @@ package main
 import (
 	"g09-to-do-list/middleware"
 	gin3 "g09-to-do-list/module/item/transport/gin"
+	"g09-to-do-list/module/upload"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -23,8 +24,12 @@ func main() {
 
 	r.Use(middleware.Recover())
 
+	r.Static("/static", "./static")
+
 	v1 := r.Group("/v1")
 	{
+		v1.PUT("/upload", upload.Upload(db))
+
 		items := v1.Group("/items")
 		{
 			items.POST("", gin3.CreateNewItem(db))
