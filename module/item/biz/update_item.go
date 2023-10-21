@@ -6,7 +6,7 @@ import (
 )
 
 type UpdateItemStorage interface {
-	UpdateItem(ctx context.Context, id int, data *model.TodoItemUpdate) error
+	UpdateItem(ctx context.Context, cond map[string]interface{}, data *model.TodoItemUpdate) error
 }
 
 type bizUpdateItem struct {
@@ -18,7 +18,11 @@ func NewBizUpdateItem(store UpdateItemStorage) *bizUpdateItem {
 }
 
 func (biz *bizUpdateItem) UpdateItem(ctx context.Context, id int, data *model.TodoItemUpdate) error {
-	if err := biz.store.UpdateItem(ctx, id, data); err != nil {
+	cond := make(map[string]interface{})
+
+	cond["id"] = id
+
+	if err := biz.store.UpdateItem(ctx, cond, data); err != nil {
 		return err
 	}
 

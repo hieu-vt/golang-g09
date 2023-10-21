@@ -5,15 +5,15 @@ import (
 	"g09-to-do-list/module/item/model"
 )
 
-type CreateItemStorage interface {
+type createItemStorage interface {
 	CreateItem(ctx context.Context, data *model.TodoItemCreation) error
 }
 
 type createItemBiz struct {
-	store CreateItemStorage
+	store createItemStorage
 }
 
-func NewCreateItemBiz(store CreateItemStorage) *createItemBiz {
+func NewCreateItemBiz(store createItemStorage) *createItemBiz {
 	return &createItemBiz{store: store}
 }
 
