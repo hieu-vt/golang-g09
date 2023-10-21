@@ -1,7 +1,7 @@
 package main
 
 import (
-	gin2 "g09-to-do-list/module/transport/gin"
+	gin3 "g09-to-do-list/module/item/transport/gin"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -26,11 +26,11 @@ func main() {
 	{
 		items := v1.Group("/items")
 		{
-			items.POST("", gin2.CreateNewItem(db))
-			items.GET("", gin2.ListItem(db))
-			items.GET("/:id", gin2.GetItem(db))
-			items.PATCH("/:id", gin2.UpdateItemHandler(db))
-			items.DELETE("/:id", gin2.DeleteItem(db))
+			items.POST("", gin3.CreateNewItem(db))
+			items.GET("", gin3.ListItem(db))
+			items.GET("/:id", gin3.GetItem(db))
+			items.PATCH("/:id", gin3.UpdateItemHandler(db))
+			items.DELETE("/:id", gin3.DeleteItem(db))
 		}
 	}
 
