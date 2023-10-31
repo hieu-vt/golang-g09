@@ -4,6 +4,7 @@ import (
 	"g09-to-do-list/middleware"
 	gin3 "g09-to-do-list/module/item/transport/gin"
 	"g09-to-do-list/module/upload"
+	gin2 "g09-to-do-list/module/user/transport/gin"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -37,6 +38,11 @@ func main() {
 			items.GET("/:id", gin3.GetItem(db))
 			items.PATCH("/:id", gin3.UpdateItemHandler(db))
 			items.DELETE("/:id", gin3.DeleteItem(db))
+		}
+
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/signup", gin2.CreateUserHandler(db))
 		}
 	}
 
