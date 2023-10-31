@@ -2,6 +2,7 @@ package gin
 
 import (
 	"g09-to-do-list/common"
+	"g09-to-do-list/component/tokenprovider/jwt"
 	biz2 "g09-to-do-list/module/user/biz"
 	"g09-to-do-list/module/user/model"
 	"g09-to-do-list/module/user/storage"
@@ -10,9 +11,9 @@ import (
 	"net/http"
 )
 
-func CreateUserHandler(db *gorm.DB) gin.HandlerFunc {
+func LoginHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var userData model.UserCreate
+		var userData model.UserLogin
 
 		if err := c.ShouldBind(&userData); err != nil {
 			c.JSON(http.StatusBadRequest, common.ErrInvalidRequest(err))
@@ -23,13 +24,17 @@ func CreateUserHandler(db *gorm.DB) gin.HandlerFunc {
 
 		md5Hash := common.NewMd5Hash()
 
-		biz := biz2.NewBizCreateUser(store, md5Hash)
+		tokenProvider := jwt.NewTokenJWTProvider("token", "MySecretKey")
 
-		if err := biz.CreateUser(c.Request.Context(), &userData); err != nil {
-			c.JSON(http.StatusBadRequest, common.ErrCannotCreateEntity(model.EntityName, err))
+		biz := biz2.NewBizLogin(store, md5Hash, tokenProvider, 30*24*60*60)
+
+		token, err := biz.Login(c.Request.Context(), &userData)
+
+		if err != nil {
+			panic(err)
 			return
 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(token))
 	}
 }

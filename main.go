@@ -43,6 +43,7 @@ func main() {
 		auth := v1.Group("/auth")
 		{
 			auth.POST("/signup", gin2.CreateUserHandler(db))
+			auth.POST("/login", gin2.LoginHandler(db))
 		}
 	}
 
