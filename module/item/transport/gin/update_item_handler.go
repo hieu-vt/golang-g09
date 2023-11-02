@@ -28,10 +28,11 @@ func UpdateItemHandler(db *gorm.DB) func(c *gin.Context) {
 
 			return
 		}
+		requester := c.MustGet(common.CurrentUser).(common.Requester)
 
 		store := storage.NewSQLStore(db)
 
-		biz := biz2.NewBizUpdateItem(store)
+		biz := biz2.NewBizUpdateItem(store, requester)
 
 		if err := biz.UpdateItem(c.Request.Context(), id, &updateData); err != nil {
 			c.JSON(http.StatusBadRequest, common.ErrCannotUpdateEntity(model.TableName, err))

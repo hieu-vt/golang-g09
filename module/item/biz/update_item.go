@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"g09-to-do-list/common"
 	"g09-to-do-list/module/item/model"
 )
@@ -12,11 +13,12 @@ type UpdateItemStorage interface {
 }
 
 type bizUpdateItem struct {
-	store UpdateItemStorage
+	store     UpdateItemStorage
+	requester common.Requester
 }
 
-func NewBizUpdateItem(store UpdateItemStorage) *bizUpdateItem {
-	return &bizUpdateItem{store: store}
+func NewBizUpdateItem(store UpdateItemStorage, requester common.Requester) *bizUpdateItem {
+	return &bizUpdateItem{store: store, requester: requester}
 }
 
 func (biz *bizUpdateItem) UpdateItem(ctx context.Context, id int, data *model.TodoItemUpdate) error {
@@ -32,6 +34,12 @@ func (biz *bizUpdateItem) UpdateItem(ctx context.Context, id int, data *model.To
 
 	if itemData.Status == common.DELETED {
 		return model.ErrItemIsDeleted
+	}
+
+	isOwner := biz.requester.GetUserId() == itemData.UserId
+
+	if !isOwner && !common.IsAdmin(biz.requester) {
+		return common.ErrNoPermission(errors.New("No permission"))
 	}
 
 	if err := biz.store.UpdateItem(ctx, cond, data); err != nil {

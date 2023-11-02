@@ -24,6 +24,10 @@ func CreateNewItem(db *gorm.DB) func(ctx *gin.Context) {
 
 		biz := biz.NewCreateItemBiz(store)
 
+		requester := c.MustGet(common.CurrentUser).(common.Requester)
+
+		itemData.UserId = requester.GetUserId()
+
 		if err := biz.CreateNewItem(c.Request.Context(), &itemData); err != nil {
 			c.JSON(http.StatusBadRequest, common.ErrCannotCreateEntity(model.TableName, err))
 		}
