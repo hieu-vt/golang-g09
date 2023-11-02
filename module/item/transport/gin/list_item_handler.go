@@ -28,12 +28,18 @@ func ListItem(db *gorm.DB) func(c *gin.Context) {
 		store := storage.NewSQLStore(db)
 		biz := biz2.NewBizListItem(store)
 
-		if result, err := biz.ListItem(c.Request.Context(), &queryString.Paging, &queryString.Filter); err != nil {
+		result, err := biz.ListItem(c.Request.Context(), &queryString.Paging, &queryString.Filter)
+
+		if err != nil {
 			c.JSON(http.StatusBadRequest, common.ErrCannotListEntity(model.TableName, err))
 
 			return
-		} else {
-			c.JSON(http.StatusOK, common.NewSuccessResponse(result, queryString.Paging, queryString.Filter))
 		}
+
+		for _, item := range result {
+			item.MaskItem()
+		}
+
+		c.JSON(http.StatusOK, common.NewSuccessResponse(result, queryString.Paging, queryString.Filter))
 	}
 }

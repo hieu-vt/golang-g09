@@ -18,13 +18,24 @@ const (
 
 type TodoItem struct {
 	common.SQLModel
-	Title       string `json:"title" gorm:"column:title;"`
-	Description string `json:"description" gorm:"column:description;"`
-	Status      string `json:"status" gorm:"column:status;"`
-	UserId      int    `json:"userId" gorm:"column:user_id;"`
+	Title       string             `json:"title" gorm:"column:title;"`
+	Description string             `json:"description" gorm:"column:description;"`
+	Status      string             `json:"status" gorm:"column:status;"`
+	UserId      int                `json:"-" gorm:"column:user_id;"`
+	Owner       *common.SimpleUser `json:"owner" gorm:"foreignKey:UserId"`
 }
 
-func (TodoItem) TableName() string { return TableName }
+func (TodoItem) TableName() string {
+	return TableName
+}
+
+func (item TodoItem) MaskItem() {
+	item.SQLModel.Mask(common.DbTypeItem)
+
+	if v := item.Owner; v != nil {
+		v.Mask()
+	}
+}
 
 type TodoItemCreation struct {
 	Id          int    `json:"id" gorm:"column:id;"`
