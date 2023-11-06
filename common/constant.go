@@ -37,3 +37,7 @@ type Requester interface {
 func IsAdmin(requester Requester) bool {
 	return requester.GetRole() == "admin" || requester.GetRole() == "mod"
 }
+
+const (
+	PluginDBMain = "PluginDBMain"
+)
