@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"g09-to-do-list/common"
-	"g09-to-do-list/component/tokenprovider"
 	"g09-to-do-list/module/user/model"
+	tokenprovider2 "g09-to-do-list/plugin/tokenprovider"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -39,7 +39,7 @@ func extractTokenFromHeaderString(s string) (string, error) {
 // 2. Validate token and parse to payload
 // 3. From the token payload, we use user_id to find from DB
 
-func RequiredAuth(authStore AuthenStore, tokenProvider tokenprovider.Provider) func(c *gin.Context) {
+func RequiredAuth(authStore AuthenStore, tokenProvider tokenprovider2.Provider) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		token, err := extractTokenFromHeaderString(c.GetHeader("Authorization"))
 

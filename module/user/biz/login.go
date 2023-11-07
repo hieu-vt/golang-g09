@@ -5,6 +5,7 @@ import (
 	"g09-to-do-list/common"
 	"g09-to-do-list/component/tokenprovider"
 	"g09-to-do-list/module/user/model"
+	tokenprovider2 "g09-to-do-list/plugin/tokenprovider"
 )
 
 type storeFindUser interface {
@@ -14,14 +15,14 @@ type storeFindUser interface {
 type bizLogin struct {
 	store         storeFindUser
 	hasher        Hasher
-	tokenProvider tokenprovider.Provider
+	tokenProvider tokenprovider2.Provider
 	expiry        int
 }
 
 func NewBizLogin(
 	store storeFindUser,
 	hasher Hasher,
-	tokenProvider tokenprovider.Provider,
+	tokenProvider tokenprovider2.Provider,
 	expiry int) *bizLogin {
 	return &bizLogin{
 		store:         store,

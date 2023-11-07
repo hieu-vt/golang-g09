@@ -39,5 +39,6 @@ func IsAdmin(requester Requester) bool {
 }
 
 const (
-	PluginDBMain = "PluginDBMain"
+	PluginDBMain      = "PluginDBMain"
+	PluginJwtProvider = "PluginJwtProvider"
 )

@@ -2,16 +2,16 @@ package gin
 
 import (
 	"g09-to-do-list/common"
-	"g09-to-do-list/component/tokenprovider"
 	biz2 "g09-to-do-list/module/user/biz"
 	"g09-to-do-list/module/user/model"
 	"g09-to-do-list/module/user/storage"
+	tokenprovider2 "g09-to-do-list/plugin/tokenprovider"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
 )
 
-func LoginHandler(db *gorm.DB, tokenProvider tokenprovider.Provider) gin.HandlerFunc {
+func LoginHandler(db *gorm.DB, tokenProvider tokenprovider2.Provider) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var userData model.UserLogin
 

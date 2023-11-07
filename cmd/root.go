@@ -3,13 +3,14 @@ package cmd
 import (
 	"fmt"
 	"g09-to-do-list/common"
-	"g09-to-do-list/component/tokenprovider/jwt"
 	"g09-to-do-list/middleware"
 	gin3 "g09-to-do-list/module/item/transport/gin"
 	"g09-to-do-list/module/upload"
 	userstorage "g09-to-do-list/module/user/storage"
 	gin2 "g09-to-do-list/module/user/transport/gin"
 	"g09-to-do-list/plugin/sdkgorm"
+	"g09-to-do-list/plugin/tokenprovider"
+	jwt2 "g09-to-do-list/plugin/tokenprovider/jwt"
 	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -23,6 +24,7 @@ func newService() goservice.Service {
 		goservice.WithName("social-todo-list"),
 		goservice.WithVersion("1.0.0"),
 		goservice.WithInitRunnable(sdkgorm.NewGormDB("main", common.PluginDBMain)),
+		goservice.WithInitRunnable(jwt2.NewJwtProvider(common.PluginJwtProvider)),
 	)
 
 	return service
@@ -32,8 +34,6 @@ var rootCmd = &cobra.Command{
 	Use:   "app",
 	Short: "Start social TODO service",
 	Run: func(cmd *cobra.Command, args []string) {
-		systemSecret := os.Getenv("SECRET")
-
 		service := newService()
 
 		serviceLogger := service.Logger("service")
@@ -48,7 +48,7 @@ var rootCmd = &cobra.Command{
 			db := service.MustGet(common.PluginDBMain).(*gorm.DB)
 
 			authStore := userstorage.NewSQLStore(db)
-			tokenProvider := jwt.NewTokenJWTProvider("jwt", systemSecret)
+			tokenProvider := service.MustGet(common.PluginJwtProvider).(tokenprovider.Provider)
 			middlewareAuth := middleware.RequiredAuth(authStore, tokenProvider)
 
 			v1 := engine.Group("/v1")
