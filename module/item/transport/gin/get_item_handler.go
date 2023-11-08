@@ -30,6 +30,7 @@ func GetItem(db *gorm.DB) func(c *gin.Context) {
 
 			return
 		} else {
+			item.SQLModel.Mask(common.DbTypeUser)
 			c.JSON(http.StatusOK, common.SimpleSuccessResponse(item))
 		}
 	}

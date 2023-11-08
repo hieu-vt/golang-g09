@@ -37,6 +37,8 @@ func ListItem(db *gorm.DB) func(c *gin.Context) {
 		}
 
 		for _, item := range result {
+			item.SQLModel.Mask(common.DbTypeUser)
+
 			item.MaskItem()
 		}
 

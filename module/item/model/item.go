@@ -30,7 +30,7 @@ func (TodoItem) TableName() string {
 }
 
 func (item TodoItem) MaskItem() {
-	item.SQLModel.Mask(common.DbTypeItem)
+	item.Mask(common.DbTypeItem)
 
 	if v := item.Owner; v != nil {
 		v.Mask()
