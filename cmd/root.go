@@ -8,6 +8,7 @@ import (
 	"g09-to-do-list/module/upload"
 	userstorage "g09-to-do-list/module/user/storage"
 	gin2 "g09-to-do-list/module/user/transport/gin"
+	ginuserlikeitem "g09-to-do-list/module/userlikeitem/transport/gin"
 	"g09-to-do-list/plugin/sdkgorm"
 	"g09-to-do-list/plugin/tokenprovider"
 	jwt2 "g09-to-do-list/plugin/tokenprovider/jwt"
@@ -55,13 +56,17 @@ var rootCmd = &cobra.Command{
 			{
 				v1.PUT("/upload", upload.Upload(db))
 
-				items := v1.Group("/items")
+				items := v1.Group("/items", middlewareAuth)
 				{
-					items.POST("", middlewareAuth, gin3.CreateNewItem(db))
+					items.POST("", gin3.CreateNewItem(db))
 					items.GET("", gin3.ListItem(db))
 					items.GET("/:id", gin3.GetItem(db))
-					items.PATCH("/:id", middlewareAuth, gin3.UpdateItemHandler(db))
-					items.DELETE("/:id", middlewareAuth, gin3.DeleteItem(db))
+					items.PATCH("/:id", gin3.UpdateItemHandler(db))
+					items.DELETE("/:id", gin3.DeleteItem(db))
+
+					items.DELETE("/:id/unlike", ginuserlikeitem.UnlikeItem(service))
+					items.POST("/:id/like", ginuserlikeitem.LikeItem(service))
+					items.GET("/:id/liked-users", ginuserlikeitem.ListUserLiked(service))
 				}
 
 				auth := v1.Group("/auth")

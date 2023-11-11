@@ -36,10 +36,8 @@ func ListItem(db *gorm.DB) func(c *gin.Context) {
 			return
 		}
 
-		for _, item := range result {
-			item.SQLModel.Mask(common.DbTypeUser)
-
-			item.MaskItem()
+		for i := range result {
+			result[i].Mask()
 		}
 
 		c.JSON(http.StatusOK, common.NewSuccessResponse(result, queryString.Paging, queryString.Filter))

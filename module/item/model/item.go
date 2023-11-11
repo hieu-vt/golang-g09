@@ -29,8 +29,8 @@ func (TodoItem) TableName() string {
 	return TableName
 }
 
-func (item TodoItem) MaskItem() {
-	item.Mask(common.DbTypeItem)
+func (item *TodoItem) Mask() {
+	item.SQLModel.Mask(common.DbTypeItem)
 
 	if v := item.Owner; v != nil {
 		v.Mask()
