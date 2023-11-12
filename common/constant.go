@@ -1,5 +1,7 @@
 package common
 
+import "fmt"
+
 const (
 	DELETED = "Deleted"
 	DOING   = "Doing"
@@ -42,3 +44,9 @@ const (
 	PluginDBMain      = "PluginDBMain"
 	PluginJwtProvider = "PluginJwtProvider"
 )
+
+func Recovery() {
+	if r := recover(); r != nil {
+		fmt.Println("Recovered:", r)
+	}
+}

@@ -23,6 +23,7 @@ type TodoItem struct {
 	Status      string             `json:"status" gorm:"column:status;"`
 	UserId      int                `json:"-" gorm:"column:user_id;"`
 	Owner       *common.SimpleUser `json:"owner" gorm:"foreignKey:UserId"`
+	LikeCount   int                `json:"likeCount" gorm:"column:like_count"`
 }
 
 func (TodoItem) TableName() string {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"g09-to-do-list/common"
 	"g09-to-do-list/module/userlikeitem/model"
+	"log"
 )
 
 type UserUnlikeItemStore interface {
@@ -11,12 +12,17 @@ type UserUnlikeItemStore interface {
 	Delete(ctx context.Context, userId, itemId int) error
 }
 
-type userUnlikeItemBiz struct {
-	store UserUnlikeItemStore
+type ItemUnlikeStore interface {
+	DecreaseLikeCount(ctx context.Context, id int) error
 }
 
-func NewUserUnlikeItemBiz(store UserUnlikeItemStore) *userUnlikeItemBiz {
-	return &userUnlikeItemBiz{store: store}
+type userUnlikeItemBiz struct {
+	store           UserUnlikeItemStore
+	itemUnlikeStore ItemUnlikeStore
+}
+
+func NewUserUnlikeItemBiz(store UserUnlikeItemStore, itemUnlikeStore ItemUnlikeStore) *userUnlikeItemBiz {
+	return &userUnlikeItemBiz{store: store, itemUnlikeStore: itemUnlikeStore}
 }
 
 func (biz *userUnlikeItemBiz) UnlikeItem(ctx context.Context, userId, itemId int) error {
@@ -34,6 +40,14 @@ func (biz *userUnlikeItemBiz) UnlikeItem(ctx context.Context, userId, itemId int
 	if err := biz.store.Delete(ctx, userId, itemId); err != nil {
 		return model.ErrCannotUnlikeItem(err)
 	}
+
+	go func() {
+		defer common.Recovery()
+
+		if err := biz.itemUnlikeStore.DecreaseLikeCount(ctx, itemId); err != nil {
+			log.Println(err)
+		}
+	}()
 
 	return nil
 }

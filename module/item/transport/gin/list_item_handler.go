@@ -4,7 +4,9 @@ import (
 	"g09-to-do-list/common"
 	biz2 "g09-to-do-list/module/item/biz"
 	"g09-to-do-list/module/item/model"
+	"g09-to-do-list/module/item/repository"
 	"g09-to-do-list/module/item/storage"
+	storage2 "g09-to-do-list/module/userlikeitem/storage"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -24,9 +26,12 @@ func ListItem(db *gorm.DB) func(c *gin.Context) {
 		}
 
 		queryString.Process()
+		requester := c.MustGet(common.CurrentUser).(common.Requester)
 
 		store := storage.NewSQLStore(db)
-		biz := biz2.NewBizListItem(store)
+		likeStore := storage2.NewSQLStore(db)
+		repo := repository.NewRepoListItem(store, likeStore, requester)
+		biz := biz2.NewBizListItem(repo)
 
 		result, err := biz.ListItem(c.Request.Context(), &queryString.Paging, &queryString.Filter)
 
