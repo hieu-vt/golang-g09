@@ -4,6 +4,7 @@ import (
 	"context"
 	"g09-to-do-list/common"
 	"g09-to-do-list/module/userlikeitem/model"
+	"g09-to-do-list/plugin/pubsub"
 	"log"
 )
 
@@ -12,17 +13,13 @@ type UserUnlikeItemStore interface {
 	Delete(ctx context.Context, userId, itemId int) error
 }
 
-type ItemUnlikeStore interface {
-	DecreaseLikeCount(ctx context.Context, id int) error
-}
-
 type userUnlikeItemBiz struct {
-	store           UserUnlikeItemStore
-	itemUnlikeStore ItemUnlikeStore
+	store UserUnlikeItemStore
+	ps    pubsub.PubSub
 }
 
-func NewUserUnlikeItemBiz(store UserUnlikeItemStore, itemUnlikeStore ItemUnlikeStore) *userUnlikeItemBiz {
-	return &userUnlikeItemBiz{store: store, itemUnlikeStore: itemUnlikeStore}
+func NewUserUnlikeItemBiz(store UserUnlikeItemStore, ps pubsub.PubSub) *userUnlikeItemBiz {
+	return &userUnlikeItemBiz{store: store, ps: ps}
 }
 
 func (biz *userUnlikeItemBiz) UnlikeItem(ctx context.Context, userId, itemId int) error {
@@ -41,13 +38,9 @@ func (biz *userUnlikeItemBiz) UnlikeItem(ctx context.Context, userId, itemId int
 		return model.ErrCannotUnlikeItem(err)
 	}
 
-	go func() {
-		defer common.Recovery()
-
-		if err := biz.itemUnlikeStore.DecreaseLikeCount(ctx, itemId); err != nil {
-			log.Println(err)
-		}
-	}()
+	if err := biz.ps.Publish(ctx, common.TopicUserUnlikeItem, pubsub.NewMessage(&model.Like{UserId: userId, ItemId: itemId})); err != nil {
+		log.Println(err)
+	}
 
 	return nil
 }

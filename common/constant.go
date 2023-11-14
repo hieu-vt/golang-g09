@@ -43,6 +43,10 @@ func IsAdmin(requester Requester) bool {
 const (
 	PluginDBMain      = "PluginDBMain"
 	PluginJwtProvider = "PluginJwtProvider"
+	PluginPubSub      = "PluginPubSub"
+
+	TopicUserLikeItem   = "TopicUserLikeItem"
+	TopicUserUnlikeItem = "TopicUserUnlikeItem"
 )
 
 func Recovery() {

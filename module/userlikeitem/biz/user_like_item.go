@@ -4,6 +4,7 @@ import (
 	"context"
 	"g09-to-do-list/common"
 	"g09-to-do-list/module/userlikeitem/model"
+	"g09-to-do-list/plugin/pubsub"
 	"log"
 )
 
@@ -16,12 +17,12 @@ type ItemLikeStore interface {
 }
 
 type userLikeItemBiz struct {
-	store     UserLikeItemStore
-	itemStore ItemLikeStore
+	store UserLikeItemStore
+	ps    pubsub.PubSub
 }
 
-func NewUserLikeItemBiz(store UserLikeItemStore, itemStore ItemLikeStore) *userLikeItemBiz {
-	return &userLikeItemBiz{store: store, itemStore: itemStore}
+func NewUserLikeItemBiz(store UserLikeItemStore, ps pubsub.PubSub) *userLikeItemBiz {
+	return &userLikeItemBiz{store: store, ps: ps}
 }
 
 func (biz *userLikeItemBiz) LikeItem(ctx context.Context, data *model.Like) error {
@@ -29,13 +30,9 @@ func (biz *userLikeItemBiz) LikeItem(ctx context.Context, data *model.Like) erro
 		return model.ErrCannotLikeItem(err)
 	}
 
-	go func() {
-		defer common.Recovery()
-
-		if err := biz.itemStore.IncreaseLikeCount(ctx, data.ItemId); err != nil {
-			log.Println(err)
-		}
-	}()
+	if err := biz.ps.Publish(ctx, common.TopicUserLikeItem, pubsub.NewMessage(data)); err != nil {
+		log.Println(err)
+	}
 
 	return nil
 }
