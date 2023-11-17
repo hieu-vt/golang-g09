@@ -10,6 +10,7 @@ import (
 	gin2 "g09-to-do-list/module/user/transport/gin"
 	ginuserlikeitem "g09-to-do-list/module/userlikeitem/transport/gin"
 	"g09-to-do-list/plugin/pubsub"
+	"g09-to-do-list/plugin/rpccaller"
 	"g09-to-do-list/plugin/sdkgorm"
 	"g09-to-do-list/plugin/tokenprovider"
 	jwt2 "g09-to-do-list/plugin/tokenprovider/jwt"
@@ -29,6 +30,7 @@ func newService() goservice.Service {
 		goservice.WithInitRunnable(sdkgorm.NewGormDB("main", common.PluginDBMain)),
 		goservice.WithInitRunnable(jwt2.NewJwtProvider(common.PluginJwtProvider)),
 		goservice.WithInitRunnable(pubsub.NewPubSub(common.PluginPubSub)),
+		goservice.WithInitRunnable(rpccaller.NewRpcCaller(common.PluginRpcApi)),
 	)
 
 	return service
@@ -62,7 +64,7 @@ var rootCmd = &cobra.Command{
 				items := v1.Group("/items", middlewareAuth)
 				{
 					items.POST("", gin3.CreateNewItem(db))
-					items.GET("", gin3.ListItem(db))
+					items.GET("", gin3.ListItem(service))
 					items.GET("/:id", gin3.GetItem(db))
 					items.PATCH("/:id", gin3.UpdateItemHandler(db))
 					items.DELETE("/:id", gin3.DeleteItem(db))
@@ -70,6 +72,11 @@ var rootCmd = &cobra.Command{
 					items.DELETE("/:id/unlike", ginuserlikeitem.UnlikeItem(service))
 					items.POST("/:id/like", ginuserlikeitem.LikeItem(service))
 					items.GET("/:id/liked-users", ginuserlikeitem.ListUserLiked(service))
+				}
+
+				rpc := v1.Group("/rpc")
+				{
+					rpc.POST("/get_item_likes", ginuserlikeitem.GetItemLikes(service))
 				}
 
 				auth := v1.Group("/auth")

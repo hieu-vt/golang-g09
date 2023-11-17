@@ -44,6 +44,7 @@ const (
 	PluginDBMain      = "PluginDBMain"
 	PluginJwtProvider = "PluginJwtProvider"
 	PluginPubSub      = "PluginPubSub"
+	PluginRpcApi      = "PluginRpcApi"
 
 	TopicUserLikeItem   = "TopicUserLikeItem"
 	TopicUserUnlikeItem = "TopicUserUnlikeItem"

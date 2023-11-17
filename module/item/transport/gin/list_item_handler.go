@@ -6,13 +6,14 @@ import (
 	"g09-to-do-list/module/item/model"
 	"g09-to-do-list/module/item/repository"
 	"g09-to-do-list/module/item/storage"
-	storage2 "g09-to-do-list/module/userlikeitem/storage"
+	"g09-to-do-list/module/item/storage/rpc"
+	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
 )
 
-func ListItem(db *gorm.DB) func(c *gin.Context) {
+func ListItem(service goservice.ServiceContext) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var queryString struct {
 			common.Paging
@@ -27,9 +28,9 @@ func ListItem(db *gorm.DB) func(c *gin.Context) {
 
 		queryString.Process()
 		requester := c.MustGet(common.CurrentUser).(common.Requester)
-
+		db := service.MustGet(common.PluginDBMain).(*gorm.DB)
 		store := storage.NewSQLStore(db)
-		likeStore := storage2.NewSQLStore(db)
+		likeStore := rpc.NewItemService(service)
 		repo := repository.NewRepoListItem(store, likeStore, requester)
 		biz := biz2.NewBizListItem(repo)
 
@@ -41,9 +42,9 @@ func ListItem(db *gorm.DB) func(c *gin.Context) {
 			return
 		}
 
-		for i := range result {
-			result[i].Mask()
-		}
+		//for i := range result {
+		//	result[i].Mask(common.DbTypeItem)
+		//}
 
 		c.JSON(http.StatusOK, common.NewSuccessResponse(result, queryString.Paging, queryString.Filter))
 	}
