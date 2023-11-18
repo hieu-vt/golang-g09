@@ -32,11 +32,12 @@ func (c *rpcCaller) InitFlags() {
 }
 
 func (c *rpcCaller) Configure() error {
-	c.client = resty.New()
 	return nil
 }
 
 func (c *rpcCaller) Run() error {
+	c.client = resty.New()
+
 	return nil
 }
 
@@ -46,4 +47,12 @@ func (c *rpcCaller) Stop() <-chan bool {
 		ch <- true
 	}()
 	return ch
+}
+
+func (c *rpcCaller) GetServiceUrl() string {
+	return c.serviceURL
+}
+
+func (c *rpcCaller) GetRestyClient() *resty.Client {
+	return c.client
 }

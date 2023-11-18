@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"g09-to-do-list/common"
+	"g09-to-do-list/plugin/rpccaller"
 	goservice "github.com/200Lab-Education/go-sdk"
-	"github.com/go-resty/resty/v2"
 )
 
 type itemService struct {
@@ -24,20 +24,17 @@ func (s *itemService) GetItemLikes(ctx context.Context, ids []int) (map[int]int,
 
 	logger := s.appService.Logger("rpc-call-api")
 
-	rpc := s.appService.MustGet(common.PluginRpcApi).(struct {
-		client     *resty.Client
-		serviceURL string
-	})
-
+	rpc := s.appService.MustGet(common.PluginRpcApi).(rpccaller.Rpc)
+	client := rpc.GetRestyClient()
 	var response struct {
 		Data map[int]int `json:"data"`
 	}
 
-	resp, err := rpc.client.R().
+	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(requestBody{Ids: ids}).
 		SetResult(&response).
-		Post(fmt.Sprintf("%s/%s", rpc.serviceURL, "v1/rpc/get_item_likes"))
+		Post(fmt.Sprintf("%s/%s", rpc.GetServiceUrl(), "v1/rpc/get_item_likes"))
 
 	if err != nil {
 		logger.Errorln(err)

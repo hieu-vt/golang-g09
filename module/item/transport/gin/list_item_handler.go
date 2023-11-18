@@ -42,9 +42,9 @@ func ListItem(service goservice.ServiceContext) func(c *gin.Context) {
 			return
 		}
 
-		//for i := range result {
-		//	result[i].Mask(common.DbTypeItem)
-		//}
+		for i := range result {
+			result[i].Mask()
+		}
 
 		c.JSON(http.StatusOK, common.NewSuccessResponse(result, queryString.Paging, queryString.Filter))
 	}
